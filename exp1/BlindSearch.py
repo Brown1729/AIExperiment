@@ -10,8 +10,6 @@ class Graph:
         """
         self.node_name = node_name
         self.n = len(self.node_name)
-        self.dist_to_bucharest = [366, 0, 160, 242, 161, 178, 77, 151, 226, 244, 241, 234, 380, 98, 193, 253, 329, 80,
-                                  199, 374]
 
         self.matrix = [[self._MAX_COST_ for _ in range(self.n)] for _ in range(self.n)]
 
@@ -164,6 +162,89 @@ class Graph:
 
         return path[::-1], search_path, cost
 
+    def graph_greedy(self, start_city: str, end_city: str, heuristic_values: list) -> (list, list, int):
+        """
+        贪婪搜索，
+        :param start_city: 起始城市名字
+        :param end_city: 终止城市名字
+        :return: 1：列表，代表路径，2：列表，搜索顺序, 3: 数字，代表路径长度
+        """
+        start = self.node_name.index(start_city)
+        end = self.node_name.index(end_city)
+        visited = [False] * self.n
+        path = []
+        search_path = []
+        cost = 0
+        uset = [None for i in range(self.n)]  # 并查集
+        cost_list = [self._MAX_COST_ for i in range(self.n)]  # 启发信息表
+
+        # 初始化
+        cost_list[start] = 0
+
+        while True:
+            min_cost_vertex = cost_list.index(min(cost_list[i] for i in range(self.n) if not visited[i]))
+            visited[min_cost_vertex] = True
+            search_path.append(min_cost_vertex)
+            if min_cost_vertex == end:
+                break
+            for v, c in enumerate(self.matrix[min_cost_vertex]):  # 找代价最小的
+                if cost_list[v] > heuristic_values[min_cost_vertex] and c != self._MAX_COST_ and not visited[v]:
+                    cost_list[v] = heuristic_values[min_cost_vertex]
+                    uset[v] = min_cost_vertex
+
+        if uset[end] is None:
+            return None, None, None
+
+        # 从并查集反推
+        path.append(end)
+        while uset[path[-1]] is not None:
+            cost += self.matrix[path[-1]][uset[path[-1]]]
+            path.append(uset[path[-1]])
+
+        return path[::-1], search_path, cost
+
+    def graph_a_star(self, start_city: str, end_city: str, heuristic_values: list) -> (list, list, int):
+        """
+        A*搜索，
+        :param start_city: 起始城市名字
+        :param end_city: 终止城市名字
+        :return: 1：列表，代表路径，2：列表，搜索顺序, 3: 数字，代表路径长度
+        """
+        start = self.node_name.index(start_city)
+        end = self.node_name.index(end_city)
+        visited = [False] * self.n
+        path = []
+        search_path = []
+        cost = 0
+        uset = [None for i in range(self.n)]  # 并查集
+        cost_list = [self._MAX_COST_ for i in range(self.n)]  # 启发信息表
+
+        # 初始化
+        cost_list[start] = 0 + heuristic_values[start]
+
+        while True:
+            min_cost_vertex = cost_list.index(min(cost_list[i] for i in range(self.n) if not visited[i]))
+            visited[min_cost_vertex] = True
+            search_path.append(min_cost_vertex)
+            if min_cost_vertex == end:
+                break
+            for v, c in enumerate(self.matrix[min_cost_vertex]):  # 更新相邻节点代价
+                # 这里代价评估需要算清除
+                if cost_list[v] > cost_list[min_cost_vertex] - heuristic_values[min_cost_vertex] + c + heuristic_values[v] and c != self._MAX_COST_ and not visited[v]:
+                    cost_list[v] = cost_list[min_cost_vertex] - heuristic_values[min_cost_vertex] + c + heuristic_values[v]
+                    uset[v] = min_cost_vertex
+
+        if uset[end] is None:
+            return None, None, None
+
+        # 从并查集反推
+        path.append(end)
+        cost = cost_list[end] - heuristic_values[end]
+        while uset[path[-1]] is not None:
+            path.append(uset[path[-1]])
+
+        return path[::-1], search_path, cost
+
 
 if __name__ == '__main__':
     city_name_list = ["Arad", "Bucharest", "Craiova", "Dobreta", "Eforie", "Fagaras", "Giurgiu", "Hirsova", "Iasi",
@@ -236,6 +317,24 @@ if __name__ == '__main__':
     path, search_path, cost = graph.graph_ucs("Arad", "Bucharest")
     print("----------------------------------")
     print("UCS")
+    print("路径：", graph.get_path_name(path))
+    print("搜索顺序：", graph.get_path_name(search_path))
+    print("路径长度：", cost)
+    print("----------------------------------")
+
+    dist_to_bucharest = [366, 0, 160, 242, 161, 178, 77, 151, 226, 244, 241, 234, 380, 98, 193, 253, 329, 80,
+                         199, 374]
+    path, search_path, cost = graph.graph_greedy("Arad", "Bucharest", dist_to_bucharest)
+    print("----------------------------------")
+    print("Greedy")
+    print("路径：", graph.get_path_name(path))
+    print("搜索顺序：", graph.get_path_name(search_path))
+    print("路径长度：", cost)
+    print("----------------------------------")
+
+    path, search_path, cost = graph.graph_a_star("Arad", "Bucharest", dist_to_bucharest)
+    print("----------------------------------")
+    print("A*")
     print("路径：", graph.get_path_name(path))
     print("搜索顺序：", graph.get_path_name(search_path))
     print("路径长度：", cost)
