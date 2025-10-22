@@ -179,7 +179,7 @@ class Graph:
         cost_list = [self._MAX_COST_ for i in range(self.n)]  # 启发信息表
 
         # 初始化
-        cost_list[start] = 0
+        cost_list[start] = heuristic_values[start]
 
         while True:
             min_cost_vertex = cost_list.index(min(cost_list[i] for i in range(self.n) if not visited[i]))
@@ -189,7 +189,7 @@ class Graph:
                 break
             for v, c in enumerate(self.matrix[min_cost_vertex]):  # 找代价最小的
                 if cost_list[v] > heuristic_values[min_cost_vertex] and c != self._MAX_COST_ and not visited[v]:
-                    cost_list[v] = heuristic_values[min_cost_vertex]
+                    cost_list[v] = heuristic_values[v]
                     uset[v] = min_cost_vertex
 
         if uset[end] is None:
