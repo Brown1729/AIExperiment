@@ -25,6 +25,15 @@ class CollectingPebbles:
         self.initial_stones = stones
         self.max_take = max_take
         self.current_stones = stones
+        self.search_times_in_each_turn = 0
+        self.prune_times_in_each_turn = 0
+
+    def get_current_stones(self) -> int:
+        """
+        获取当前石头数
+        :return:
+        """
+        return self.current_stones
 
     def reset(self):
         """
@@ -35,7 +44,7 @@ class CollectingPebbles:
 
     def is_terminal(self, state):
         """
-        判断当前状态是否为终端状态
+        判断当前状态是否为终止状态
         :param state:
         :return:
         """
@@ -81,69 +90,104 @@ class CollectingPebbles:
                  best_move: 最佳移动
         """
 
+        self.search_times_in_each_turn += 1
+
         # 判断当前是否需要中止
         if self.is_terminal(state):
             return self.evaluate(state, is_max), None
 
-        if is_max:
+        if is_max:  # 如果是MAX层
+            # 取下一层的最大值，作为本结点的值
             max_eval = -math.inf
-            best_move = None
+            best_move = None  # 最佳移动步骤
             for move in self.get_legal_moves(state):
                 new_state = self.make_move(state, move)
-                eval, _ = self.min_max(new_state, depth + 1, False)
+                eval, _ = self.min_max(new_state, depth + 1, False)  # 往下递归，深度加一
                 if eval > max_eval:  # min结点选最小
                     max_eval = eval
                     best_move = move
             return max_eval, best_move
-        else:
+        else:  # 如果是MIN层
+            # 取下一层最小值
             min_eval = math.inf
             best_move = None
             for move in self.get_legal_moves(state):
                 new_state = self.make_move(state, move)
-                eval, _ = self.min_max(new_state, depth + 1, True)
+                eval, _ = self.min_max(new_state, depth + 1, True)  # 往下递归，深度加一
                 if eval < min_eval:  # max结点选最大
                     min_eval = eval
                     best_move = move
             return min_eval, best_move
 
     def alpha_beta(self, state, depth, alpha, beta, is_max):
-        """α-β剪枝算法实现"""
+        """
+        α-β剪枝算法实现
+        :param state:
+        :param depth:
+        :param alpha:
+        :param beta:
+        :param is_max:
+        :return:
+        """
+
+        self.search_times_in_each_turn += 1
+
+        # 判断当前状态是否中止
         if self.is_terminal(state):
             return self.evaluate(state, is_max), None
 
         if is_max:
             max_eval = -math.inf
             best_move = None
+            # 取下一层最大值，如果满足剪枝条件，则执行剪枝
             for move in self.get_legal_moves(state):
                 new_state = self.make_move(state, move)
                 eval, _ = self.alpha_beta(new_state, depth + 1, alpha, beta, False)
                 if eval > max_eval:
                     max_eval = eval
                     best_move = move
-                alpha = max(alpha, eval)
-                if beta <= alpha:  # 满足剪枝条件
+                alpha = max(alpha, eval)  # alpha 保存下界，MAX 的最佳值
+                if beta <= alpha:  # 满足剪枝条件 beta 小于 alpha
+                    # print(f"剪枝发生在{depth}, 此时alpha={alpha}，beta={beta}，是否为MAX；{is_max}")
+                    self.prune_times_in_each_turn += 1
                     break  # β剪枝
             return max_eval, best_move
         else:
             min_eval = math.inf
             best_move = None
+            # 取下一层最小值，同上
             for move in self.get_legal_moves(state):
                 new_state = self.make_move(state, move)
                 eval, _ = self.alpha_beta(new_state, depth + 1, alpha, beta, True)
                 if eval < min_eval:
                     min_eval = eval
                     best_move = move
-                beta = min(beta, eval)
-                if beta <= alpha:  # 满足剪枝条件
+                beta = min(beta, eval)  # beta 保存上界，MIN 的最佳值
+                if beta <= alpha:  # 满足剪枝条件 beta 小于 alpha
+                    # print(f"剪枝发生在{depth}, 此时alpha={alpha}，beta={beta}，是否为MAX；{is_max}")
+                    self.prune_times_in_each_turn += 1
                     break  # α剪枝
             return min_eval, best_move
 
     def get_ai_move(self, algorithm='alphabeta'):
-        """获取AI的移动"""
+        """
+        获取AI的移动
+        :param algorithm:
+        :return:
+        """
+
+        self.search_times_in_each_turn = 0
+        self.prune_times_in_each_turn = 0
+
         if algorithm == 'minmax':
-            _, move = self.min_max(self.current_stones, 0, True)
+            _, move = self.min_max(self.current_stones, 0, True)  # AI 思考是以自己为 MAX 的，即使从全局来看属于 MIN
         else:  # alphabeta
             _, move = self.alpha_beta(self.current_stones, 0, -math.inf, math.inf, True)
+            print(f"AI 剪枝了 {self.prune_times_in_each_turn} 次")
+
+        print(f"AI 搜索了 {self.search_times_in_each_turn} 次")
+        print(f"AI 得到的结果：{_}")
+
         return move
 
     def player_move(self, move):
@@ -168,14 +212,14 @@ if "__main__" == __name__:
     STONE_NUM = 10
     game = CollectingPebbles(STONE_NUM, 3)
 
-    print("=" * STONE_NUM)
+    print("=" * 50)
     print("           石子游戏")
-    print("=" * STONE_NUM)
+    print("=" * 50)
     print("规则:")
     print(f"- 初始有{STONE_NUM}颗石子")
     print("- 每次可以取1-3颗石子")
     print("- 取走最后一颗石子的玩家输")
-    print("=" * STONE_NUM)
+    print("=" * 50)
 
     while True:
         print("\n选择游戏模式:")
@@ -198,14 +242,14 @@ if "__main__" == __name__:
             print(f"\n游戏开始! {'玩家' if player_turn else 'AI'}先手")
             print(f"使用算法: {algorithm}")
 
-            while game.current_stones > 0:
+            while game.get_current_stones() > 0:
                 game.display_state()
 
                 if player_turn:
                     # 玩家回合
                     while True:
                         try:
-                            move = int(input(f"\n请取石子(1-{min(3, game.current_stones)}): "))
+                            move = int(input(f"\n请取石子(1-{min(3, game.get_current_stones())}): "))
                             if game.player_move(move):
                                 break
                             else:
@@ -213,17 +257,17 @@ if "__main__" == __name__:
                         except ValueError:
                             print("请输入数字!")
 
-                    if game.current_stones == 0:
+                    if game.get_current_stones() == 0:
                         print("\n你取走了最后一颗石子，你赢了！")
                         break
                 else:
                     # AI回合
                     print("\nAI思考中...")
                     move = game.get_ai_move(algorithm)
-                    game.current_stones -= move
+                    game.player_move(move)
                     print(f"AI取走了 {move} 颗石子")
 
-                    if game.current_stones == 0:
+                    if game.get_current_stones() == 0:
                         print("\nAI取走了最后一颗石子，AI赢了！")
                         break
 
