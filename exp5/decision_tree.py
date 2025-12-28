@@ -1,5 +1,4 @@
 import random
-
 import numpy as np
 import math
 from collections import Counter
@@ -105,17 +104,13 @@ class DecisionTree:
         """
         # 父节点的熵
         parent_entropy = self._information_entropy(y)
-
         # 计算子节点的加权熵
         n = len(y)
         n_left, n_right = len(y_left), len(y_right)
-
         if n == 0:
             return 0
-
         child_entropy = (n_left / n) * self._information_entropy(y_left) + (n_right / n) * self._information_entropy(
             y_right)
-
         # 信息增益
         return parent_entropy - child_entropy
 
@@ -129,22 +124,18 @@ class DecisionTree:
         """
         # 信息增益
         information_gain = self._information_gain(y, y_left, y_right)
-
         # 分裂信息
         n = len(y)
         n_left, n_right = len(y_left), len(y_right)
-
         # 固有值
         intrinsic_value = 0
         if n_left > 0:
             intrinsic_value -= (n_left / n) * math.log2(n_left / n)
         if n_right > 0:
             intrinsic_value -= (n_right / n) * math.log2(n_right / n)
-
         # 避免除以0
         if intrinsic_value == 0:
             return 0
-
         # 增益率
         return information_gain / intrinsic_value
 
@@ -159,12 +150,9 @@ class DecisionTree:
         # 计算子节点的加权基尼不纯度
         n = len(y)
         n_left, n_right = len(y_left), len(y_right)
-
         if n == 0:
             return 0
-
         gini_index = (n_left / n) * self._gini(y_left) + (n_right / n) * self._gini(y_right)
-
         # 基尼增益
         return gini_index
 
@@ -384,17 +372,15 @@ class RandomForest:
         # 随机选择特征索引
         return np.random.choice(n_features, n_selected, replace=False)
 
-    def fit(self, X, y, algorithms=['cart','id3','c45']):
+    def fit(self, X, y, algorithms=['cart', 'id3', 'c45']):
         """训练随机森林"""
         self.trees = []  # 清空树列表
         n_samples, n_features = X.shape  # 获取样本数和特征数
-
         # 训练每棵树
         for i in range(self.n_estimators):
             # 生成自助样本
             X_bootstrap, y_bootstrap = self._bootstrap_samples(X, y)
             algorithm = random.choice(algorithms)
-
             # 创建决策树，限制特征选择
             tree = DecisionTree(
                 max_depth=self.max_depth,
@@ -402,16 +388,13 @@ class RandomForest:
                 min_samples_leaf=self.min_samples_leaf,
                 algorithm=algorithm
             )
-
             # 训练决策树
             tree.fit(X_bootstrap, y_bootstrap)
             # 添加到树列表
             self.trees.append(tree)
-
             # 打印训练进度
             if (i + 1) % 10 == 0:
                 print(f"已训练 {i + 1}/{self.n_estimators} 棵树")
-
         return self
 
     def predict(self, X):
@@ -447,58 +430,59 @@ if __name__ == '__main__':
     print(f"测试集: {X_test.shape}, 标签: {y_test.shape}")
     print(f"类别分布 - 训练集: {np.bincount(y_train)}, 验证集: {np.bincount(y_val)}, 测试集: {np.bincount(y_test)}")
 
-    # # 1. 决策树分类
-    # print("\n" + "=" * 50)
-    # print("1. 决策树分类")
-    # print("=" * 50)
-    #
-    # # 超参数调优
-    # max_depths = [5, 10, 15]  # 最大深度候选值
-    # min_samples_splits = [2, 5, 10]  # 最小分裂样本数候选值
-    #
-    # best_dt_val_score = 0  # 最佳验证集准确率
-    # best_dt_params = {}  # 最佳参数
-    # best_dt = None  # 最佳决策树模型
-    #
-    # print("在验证集上调整决策树超参数...")
-    # # 网格搜索寻找最佳参数
-    # for algorithm in ['cart', 'id3', 'c45']:
-    #     for max_depth in max_depths:
-    #         for min_samples_split in min_samples_splits:
-    #             # 创建决策树模型
-    #             dt = DecisionTree(
-    #                 max_depth=max_depth,
-    #                 min_samples_split=min_samples_split,
-    #                 min_samples_leaf=1,
-    #                 algorithm=algorithm
-    #             )
-    #             dt.fit(X_train, y_train)  # 训练模型
-    #             val_score = dt.score(X_val, y_val)  # 验证集准确率
-    #
-    #             # 更新最佳模型
-    #             if val_score > best_dt_val_score:
-    #                 best_dt_val_score = val_score
-    #                 best_dt_params = {
-    #                     'max_depth': max_depth,
-    #                     'min_samples_split': min_samples_split,
-    #                     'best_algorithm': algorithm
-    #                 }
-    #                 best_dt = dt
-    #
-    # # 打印最佳参数
-    # print(f"最佳验证集准确率: {best_dt_val_score:.4f}")
-    # print(f"最佳参数: {best_dt_params}")
-    #
-    # # 计算准确率
-    # train_acc_dt = best_dt.score(X_train, y_train)  # 训练集准确率
-    # val_acc_dt = best_dt.score(X_val, y_val)  # 验证集准确率
-    # test_acc_dt = best_dt.score(X_test, y_test)  # 测试集准确率
-    #
-    # # 打印性能结果
-    # print(f"\n决策树性能:")
-    # print(f"训练集准确率: {train_acc_dt:.4f}")
-    # print(f"验证集准确率: {val_acc_dt:.4f}")
-    # print(f"测试集准确率: {test_acc_dt:.4f}")
+    # 1. 决策树分类
+    print("\n" + "=" * 50)
+    print("1. 决策树分类")
+    print("=" * 50)
+
+    # 超参数调优
+    max_depths = [5, 10, 15]  # 最大深度候选值
+    min_samples_splits = [2, 5, 10]  # 最小分裂样本数候选值
+    algorithms = ['cart', 'id3', 'c45']  # 算法候选值
+
+    best_dt_val_score = 0  # 最佳验证集准确率
+    best_dt_params = {}  # 最佳参数
+    best_dt = None  # 最佳决策树模型
+
+    print("在验证集上调整决策树超参数...")
+    # 网格搜索寻找最佳参数
+    for algorithm in algorithms:
+        for max_depth in max_depths:
+            for min_samples_split in min_samples_splits:
+                # 创建决策树模型
+                dt = DecisionTree(
+                    max_depth=max_depth,
+                    min_samples_split=min_samples_split,
+                    min_samples_leaf=1,
+                    algorithm=algorithm
+                )
+                dt.fit(X_train, y_train)  # 训练模型
+                val_score = dt.score(X_val, y_val)  # 验证集准确率
+
+                # 更新最佳模型
+                if val_score > best_dt_val_score:
+                    best_dt_val_score = val_score
+                    best_dt_params = {
+                        'max_depth': max_depth,
+                        'min_samples_split': min_samples_split,
+                        'best_algorithm': algorithm
+                    }
+                    best_dt = dt
+
+    # 打印最佳参数
+    print(f"最佳验证集准确率: {best_dt_val_score:.4f}")
+    print(f"最佳参数: {best_dt_params}")
+
+    # 计算准确率
+    train_acc_dt = best_dt.score(X_train, y_train)  # 训练集准确率
+    val_acc_dt = best_dt.score(X_val, y_val)  # 验证集准确率
+    test_acc_dt = best_dt.score(X_test, y_test)  # 测试集准确率
+
+    # 打印性能结果
+    print(f"\n决策树性能:")
+    print(f"训练集准确率: {train_acc_dt:.4f}")
+    print(f"验证集准确率: {val_acc_dt:.4f}")
+    print(f"测试集准确率: {test_acc_dt:.4f}")
 
     # 2. 随机森林分类
     print("\n" + "=" * 50)
