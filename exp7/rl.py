@@ -30,7 +30,12 @@ class GridWorld:
         return self.reward_non_terminal
 
     def transition_probs(self, state, action):
-        """返回可能的 (next_state, probability) 列表"""
+        """
+        返回可能的 (next_state, probability) 列表
+        :param state:
+        :param action:
+        :return:
+        """
         if state in self.terminal_states:
             return []  # 终止状态没有转移
 
@@ -60,6 +65,14 @@ class GridWorld:
 # 2. 模型已知算法
 # ==========================================
 def value_iteration(env, gamma=0.9, epsilon=1e-6, max_iteration=100):
+    """
+    值迭代
+    :param env:
+    :param gamma:
+    :param epsilon:
+    :param max_iteration:
+    :return:
+    """
     U = {s: 0.0 for s in env.valid_states}
     history = [U.copy()]
     theta = epsilon * (1 - gamma) / gamma
@@ -106,6 +119,13 @@ def value_iteration(env, gamma=0.9, epsilon=1e-6, max_iteration=100):
 
 
 def policy_iteration(env, gamma=0.9, max_iteration=1000):
+    """
+    策略迭代
+    :param env:
+    :param gamma:
+    :param max_iteration:
+    :return:
+    """
     U = {s: 0.0 for s in env.valid_states}
     history = [U.copy()]
     policy = {(r, c): random.choice(env.actions)
@@ -139,6 +159,15 @@ def policy_iteration(env, gamma=0.9, max_iteration=1000):
 
 
 def policy_evaluation(env, policy, U, gamma=0.9, max_iteration=1000):
+    """
+    策略评估
+    :param env:
+    :param policy:
+    :param U:
+    :param gamma:
+    :param max_iteration:
+    :return:
+    """
     epsilon = 1e-6
     for iteration in range(max_iteration):
         delta = 0  # 记录最大变化值
@@ -156,21 +185,18 @@ def policy_evaluation(env, policy, U, gamma=0.9, max_iteration=1000):
     return U
 
 
-# def policy_evaluation(env, policy, U, gamma=0.9):
-#     new_U = U.copy()
-#     for s in env.valid_states:
-#         if s in env.terminal_states:
-#             new_U[s] = env.terminal_states[s]
-#             continue
-#         new_U[s] = env.get_reward(s) + gamma * sum(p * U[ns] for ns, p in env.transition_probs(s, policy[s]))
-#     U = new_U
-#     return U
-
-
 # ==========================================
-# 3. 模型未知算法 (修正版)
+# 3. 模型未知算法
 # ==========================================
 def exploratory_mc(env: GridWorld, n_trials: int, T: int, epsilon: float):
+    """
+    探索性蒙特卡洛
+    :param env:
+    :param n_trials:
+    :param T:
+    :param epsilon:
+    :return:
+    """
     # 随机初始化 pi
     pi = {s: random.choice(env.actions) for s in env.valid_states if s not in env.terminal_states}
     # 动作状态效用函数
@@ -197,6 +223,14 @@ def exploratory_mc(env: GridWorld, n_trials: int, T: int, epsilon: float):
 
 
 def generate_trail(env: GridWorld, pi, T, epsilon):
+    """
+    生成一条轨迹
+    :param env:
+    :param pi:
+    :param T:
+    :param epsilon:
+    :return:
+    """
     trail = []
 
     curr_s = (0, 0)
@@ -231,6 +265,16 @@ def generate_trail(env: GridWorld, pi, T, epsilon):
 
 
 def q_learning_exploration_f(env, n_trials, gamma, R_plus=1, N_e=9):
+    """
+    Q-learning with exploration function
+    结果是错的啊
+    :param env:
+    :param n_trials:
+    :param gamma:
+    :param R_plus:
+    :param N_e:
+    :return:
+    """
     # 初始化 Q 值和计数器
     Q = {(s, a): 0.0 for s in env.valid_states for a in env.actions}
     N_sa = {(s, a): 0 for s in env.valid_states if s not in env.terminal_states for a in env.actions}
@@ -286,6 +330,14 @@ def exploration_f(q, n_sa, R_plus, N_e):
 
 
 def q_learning_epsilon_greedy(env, n_trials=5000, gamma=1, epsilon=0.1):
+    """
+    Q-learning with epsilon-greedy
+    :param env:
+    :param n_trials:
+    :param gamma:
+    :param epsilon:
+    :return:
+    """
     # 初始化 Q 值和计数器
     Q = {(s, a): 0.0 for s in env.valid_states for a in env.actions}
 
@@ -392,26 +444,6 @@ def print_policy(env, policy, title):
 
 if __name__ == "__main__":
     pass
-    # # 任务1: 对不同 R(s) 找最优策略 [cite: 6]
-    # for rs in [0.01, -0.01, -0.04]:
-    #     e = GridWorld(reward_non_terminal=rs)
-    #     p_vi = value_iteration(e)
-    #     print_policy(p_vi, f"Value Iteration (R={rs})")
-    #
-    # # 任务2: MC 与 Q-Learning [cite: 7]
-    # e_un = GridWorld(reward_non_terminal=-0.04)
-    # q_mc = exploratory_mc(e_un)
-    # q_ql = q_learning(e_un)
-    #
-    # # 提取最终策略
-    # pol_mc = {s: e_un.actions[np.argmax([q_mc[(s, a)] for a in e_un.actions])]
-    #           for s in e_un.valid_states if s not in e_un.terminal_states}
-    # pol_ql = {s: e_un.actions[np.argmax([q_ql[(s, a)] for a in e_un.actions])]
-    #           for s in e_un.valid_states if s not in e_un.terminal_states}
-    #
-    # print_policy(pol_mc, "MC Policy")
-    # print_policy(pol_ql, "Q-Learning Policy")
-
     # # 测试世界正确性
     # e = GridWorld(reward_non_terminal=-0.04)
     # probs = e.transition_probs((0, 0), "RIGHT")
@@ -432,19 +464,19 @@ if __name__ == "__main__":
     # print(e.transition_probs((1, 0), "UP"))
     # print(e.transition_probs((1, 0), "DOWN"))
 
-    # 测试值迭代算法
+    # # 测试值迭代算法
     # for rs in [0.01, -0.01, -0.04]:
     #     e = GridWorld(reward_non_terminal=rs)
     #     u, p, h = value_iteration(e, gamma=1)
     #     print_policy_value(e, u, p, h, title=f"Value Iteration (R={rs}), gamma={1}")
 
     # 测试策略迭代
-    # for rs in [0.01, -0.01, -0.04]:
-    #     e = GridWorld(reward_non_terminal=rs)
-    #     u, p, h = policy_iteration(e, gamma=1)
-    #     print_policy_value(e, u, p, h, title=f"Policy Iteration (R={rs}), gamma={1}")
+    for rs in [0.01, -0.01, -0.04]:
+        e = GridWorld(reward_non_terminal=rs)
+        u, p, h = policy_iteration(e, gamma=1)
+        print_policy_value(e, u, p, h, title=f"Policy Iteration (R={rs}), gamma={1}")
 
-    # # 测试 MC
+    # 测试 MC
     # e_un = GridWorld(reward_non_terminal=-0.04)
     # pol_mc = exploratory_mc(
     #     env=e_un,
@@ -454,16 +486,12 @@ if __name__ == "__main__":
     # )
     # print_policy(e_un, pol_mc, "MC Policy")
 
-    # 任务2: MC 与 Q-Learning
-    e_un = GridWorld(reward_non_terminal=-0.04)
-    # q_ql = q_learning_exploration_f(
+    # 测试 Q-Learning
+    # e_un = GridWorld(reward_non_terminal=-0.04)
+    # q_ql = q_learning_epsilon_greedy(
     #     env=e_un,
     #     n_trials=100000,
-    #     gamma=1)
-    q_ql = q_learning_epsilon_greedy(
-        env=e_un,
-        n_trials=100000,
-        gamma=1,
-        epsilon=0.1
-    )
-    print_policy(e_un, q_ql, "Q-Learning Policy")
+    #     gamma=1,
+    #     epsilon=0.1
+    # )
+    # print_policy(e_un, q_ql, "Q-Learning Policy")
