@@ -1,0 +1,45 @@
+\usepackage{titling}
+\usepackage{fvextra}
+\usepackage{mdframed}
+
+\definecolor{codebg}{RGB}{247,247,248}
+\definecolor{codeborder}{RGB}{214,217,223}
+
+\setlength{\droptitle}{-3.8em}
+\pretitle{\begin{center}\Large\bfseries}
+\posttitle{\par\end{center}\vspace{-0.8em}}
+\preauthor{}
+\postauthor{}
+\predate{}
+\postdate{}
+
+\setlength{\parskip}{0.28em}
+\setlength{\parindent}{2em}
+
+\renewenvironment{Shaded}{}{}
+
+\surroundwithmdframed[
+  backgroundcolor=codebg,
+  linecolor=codeborder,
+  linewidth=0.8pt,
+  roundcorner=3pt,
+  skipabove=0.55em,
+  skipbelow=0.55em,
+  innerleftmargin=8pt,
+  innerrightmargin=8pt,
+  innertopmargin=6pt,
+  innerbottommargin=6pt
+]{Highlighting}
+
+\DefineVerbatimEnvironment{Highlighting}{Verbatim}{
+  commandchars=\\\{\},
+  breaklines=true,
+  breakanywhere=true,
+  fontsize=\small
+}
+
+\RecustomVerbatimEnvironment{verbatim}{Verbatim}{
+  breaklines=true,
+  breakanywhere=true,
+  fontsize=\small
+}

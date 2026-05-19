@@ -1,0 +1,11 @@
+dna/
+tensortonic/
+.idea/
+.vscode/
+/exp8/yalefaces/
+__pycache__/
+.codex_tmp_edge/
+.ipynb_checkpoints/
+*.docx
+*.pdf
+
