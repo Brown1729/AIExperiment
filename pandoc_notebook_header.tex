@@ -1,9 +1,16 @@
 \usepackage{titling}
+\usepackage{enumitem}
 \usepackage{fvextra}
 \usepackage{mdframed}
+\usepackage{fancyhdr}
 
 \definecolor{codebg}{RGB}{247,247,248}
 \definecolor{codeborder}{RGB}{214,217,223}
+
+\ifXeTeX
+  \xeCJKsetup{AutoFakeBold=true,AutoFakeSlant=true}
+  \setCJKmainfont[BoldFont=SimHei,ItalicFont=KaiTi]{SimSun}
+\fi
 
 \setlength{\droptitle}{-3.8em}
 \pretitle{\begin{center}\Large\bfseries}
@@ -15,6 +22,25 @@
 
 \setlength{\parskip}{0.28em}
 \setlength{\parindent}{2em}
+\setlength{\headheight}{14pt}
+\setlength{\headsep}{16pt}
+
+\setlist[itemize]{itemsep=0pt,parsep=0pt,topsep=0.2em,partopsep=0pt}
+\setlist[enumerate]{itemsep=0.1em,parsep=0pt,topsep=0.25em,partopsep=0pt}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\nouppercase{\leftmark}}
+\fancyhead[R]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0pt}
+\fancypagestyle{plain}{
+  \fancyhf{}
+  \fancyhead[L]{\nouppercase{\leftmark}}
+  \fancyhead[R]{\thepage}
+  \renewcommand{\headrulewidth}{0.4pt}
+  \renewcommand{\footrulewidth}{0pt}
+}
 
 \renewenvironment{Shaded}{}{}
 

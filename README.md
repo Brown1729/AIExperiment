@@ -36,3 +36,25 @@
 ```bash
 python ipynb_to_pdf.py exp10/rnn.ipynb
 ```
+
+#### ipynb标题提升层级方法
+```bash
+# 直接覆盖原文件，标题降一级
+python demote_headers.py test.ipynb
+```
+
+```bash
+# 输出到新文件，原文件不动
+python demote_headers.py test.ipynb -o output.ipynb
+```
+
+```bash
+# 只看不改，预览前 8 条变动
+python demote_headers.py test.ipynb --dry-run	
+```
+
+```bash
+# 拼上封面
+python ipynb_to_pdf.py final/final.ipynb --cover-pdf final/final.pdf
+```
+
